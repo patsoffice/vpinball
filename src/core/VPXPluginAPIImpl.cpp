@@ -782,6 +782,7 @@ VPXPluginAPIImpl::~VPXPluginAPIImpl()
    m_msgApi.ReleaseMsgID(m_getScriptingAPIMsgId);
    m_msgApi.ReleaseMsgID(m_onGameStartMsgId);
    m_msgApi.ReleaseMsgID(m_onGameEndMsgId);
+   m_msgApi.ReleaseMsgID(m_onKeyInputMsgId);
    m_msgApi.ReleaseMsgID(m_onDisplayGetSrcMsgId);
    m_msgApi.ReleaseMsgID(m_onDisplaySrcChgMsgId);
 
