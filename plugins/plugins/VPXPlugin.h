@@ -38,6 +38,7 @@
 #define VPXPI_EVT_ON_PREPARE_FRAME      "OnPrepareFrame"      // Broadcasted when player starts preparing a new frame
 #define VPXPI_EVT_ON_UPDATE_PHYSICS     "OnUpdatePhysics"     // Broadcasted when player update physics (happens often, so must be used with care)
 #define VPXPI_EVT_ON_ACTION_CHANGED     "OnActionChanged"     // Broadcasted when an action state change, event data is an VPXActionEvent whose isPressed field can be modified by plugins
+#define VPXPI_EVT_ON_KEY_INPUT          "OnKeyInput"          // Broadcasted when a keyboard key is pressed or released, event data is a VPXKeyEvent
 
 // Ancillary window rendering
 #define VPXPI_MSG_GET_AUX_RENDERER      "GetAuxRenderer"      // Broadcasted with a GetAncillaryRendererMsg to discover ancillary window renderer implemented in plugins
@@ -239,6 +240,12 @@ typedef struct VPXActionEvent
    int isPressed;
 } VPXActionEvent;
 
+typedef struct VPXKeyEvent
+{
+   int scancode;    // SDL_Scancode value
+   int isPressed;   // 1 = key down, 0 = key up
+} VPXKeyEvent;
+
 typedef struct VPXPluginAPI
 {
    // General information API
@@ -281,5 +288,10 @@ typedef struct VPXPluginAPI
    // Destroy a texture created through this API.
    // Thread safe
    void(MSGPIAPI* DeleteTexture)(VPXTexture texture);
+
+   // Audio device information (in game only)
+   const char*(MSGPIAPI* GetBackglassDeviceName)();
+   const char*(MSGPIAPI* GetPlayfieldDeviceName)();
+   const char*(MSGPIAPI* GetAudioDriver)(); // Returns the active SDL audio driver name (e.g. "pipewire", "coreaudio", "alsa")
 
 } VPXPluginAPI;

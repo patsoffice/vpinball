@@ -228,6 +228,7 @@ private:
    vector<InputAction*> m_onUpdateActions;
    ActionState m_inputActionstate {};
    const unsigned int m_onActionEventMsgId;
+   const unsigned int m_onKeyInputMsgId;
 
    std::unique_ptr<PhysicsSensor> m_plungerPositionSensor;
    std::unique_ptr<PhysicsSensor> m_plungerVelocitySensor;

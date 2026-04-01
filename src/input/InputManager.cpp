@@ -22,6 +22,7 @@
 InputManager::InputManager(Player* player)
    : m_player(player)
    , m_onActionEventMsgId(m_player->m_pluginAPI.GetMsgID(VPXPI_NAMESPACE, VPXPI_EVT_ON_ACTION_CHANGED))
+   , m_onKeyInputMsgId(m_player->m_pluginAPI.GetMsgID(VPXPI_NAMESPACE, VPXPI_EVT_ON_KEY_INPUT))
    , m_keyboardDeviceId(RegisterDevice("Key"s, InputManager::DeviceType::Keyboard, "Keyboards"s)) // Base device: merge inputs from all connected keyboards
    , m_mouseDeviceId(RegisterDevice("Mouse"s, InputManager::DeviceType::Mouse, "Mouse"s)) // Base device: merge inputs from all connected mice
 {
@@ -143,6 +144,7 @@ InputManager::~InputManager()
    m_inputHandlers.clear();
    m_sdlHandler = nullptr;
    m_player->m_pluginAPI.ReleaseMsgID(m_onActionEventMsgId);
+   m_player->m_pluginAPI.ReleaseMsgID(m_onKeyInputMsgId);
 
    #ifdef _WIN32
       if (m_hKeyboardHook)
@@ -531,6 +533,8 @@ void InputManager::PushButtonEvent(uint16_t deviceId, uint16_t buttonId, uint64_
          DISPPARAMS dispparams = { rgvar, nullptr, 1, 0 };
          m_player->m_ptable->FireDispID(isPressed ? DISPID_GameEvents_KeyDown : DISPID_GameEvents_KeyUp, &dispparams);
       }
+      // Broadcast raw key event to plugins
+      m_player->m_pluginAPI.OnKeyInput(static_cast<int>(buttonId), isPressed);
    }
 
    if (m_buttonCaptureState == 1)

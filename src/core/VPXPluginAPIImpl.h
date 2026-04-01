@@ -52,6 +52,7 @@ public:
    void OnGameStart();
    void UpdateDMDSource(Flasher* flasher, bool isAdd);
    void OnGameEnd();
+   void OnKeyInput(int scancode, bool isPressed);
 
 private:
    const MsgPluginAPI& m_msgApi;
@@ -64,6 +65,7 @@ private:
    const unsigned int m_getVPXAPIMsgId;
    const unsigned int m_onGameStartMsgId;
    const unsigned int m_onGameEndMsgId;
+   const unsigned int m_onKeyInputMsgId;
 
    static void MSGPIAPI GetVpxInfo(VPXInfo* info);
    static void MSGPIAPI GetTableInfo(VPXTableInfo* info);
@@ -86,6 +88,10 @@ private:
    static void MSGPIAPI UpdateTexture(VPXTexture* texture, int width, int height, VPXTextureFormat format, const void* image);
    static VPXTextureInfo* MSGPIAPI GetTextureInfo(VPXTexture texture);
    static void MSGPIAPI DeleteTexture(VPXTexture texture);
+
+   static const char* MSGPIAPI GetBackglassDeviceName();
+   static const char* MSGPIAPI GetPlayfieldDeviceName();
+   static const char* MSGPIAPI GetAudioDriver();
 
    // Plugin settings
    void UpdateSetting(const std::string& pluginId, MsgPI::MsgPluginManager::SettingAction action, MsgSettingDef* settingDef);

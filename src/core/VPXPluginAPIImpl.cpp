@@ -3,6 +3,7 @@
 #include "core/stdafx.h"
 #include "VPXPluginAPIImpl.h"
 #include "parts/flasher.h"
+#include <SDL3/SDL_audio.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 // General information API
@@ -379,6 +380,44 @@ IDispatch* VPXPluginAPIImpl::CreateCOMPluginObject(const string& classId)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Audio device information API
+
+const char* MSGPIAPI VPXPluginAPIImpl::GetBackglassDeviceName()
+{
+   static string name;
+   if (g_pplayer && g_pplayer->m_audioPlayer)
+      name = g_pplayer->m_audioPlayer->GetBackglassDeviceName();
+   else
+      name.clear();
+   return name.c_str();
+}
+
+const char* MSGPIAPI VPXPluginAPIImpl::GetPlayfieldDeviceName()
+{
+   static string name;
+   if (g_pplayer && g_pplayer->m_audioPlayer)
+      name = g_pplayer->m_audioPlayer->GetPlayfieldDeviceName();
+   else
+      name.clear();
+   return name.c_str();
+}
+
+const char* MSGPIAPI VPXPluginAPIImpl::GetAudioDriver()
+{
+   const char* driver = SDL_GetCurrentAudioDriver();
+   return driver ? driver : "";
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Key input event
+
+void VPXPluginAPIImpl::OnKeyInput(int scancode, bool isPressed)
+{
+   VPXKeyEvent event { scancode, isPressed ? 1 : 0 };
+   BroadcastVPXMsg(m_onKeyInputMsgId, &event);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // Settings API
 
 void VPXPluginAPIImpl::UpdateSetting(const std::string& pluginId, MsgPI::MsgPluginManager::SettingAction action, MsgSettingDef* settingDef)
@@ -664,6 +703,7 @@ VPXPluginAPIImpl::VPXPluginAPIImpl(MsgPI::MsgPluginManager& pluginManager)
    , m_getVPXAPIMsgId(m_msgApi.GetMsgID(VPXPI_NAMESPACE, VPXPI_MSG_GET_API))
    , m_onGameStartMsgId(m_msgApi.GetMsgID(VPXPI_NAMESPACE, VPXPI_EVT_ON_GAME_START))
    , m_onGameEndMsgId(m_msgApi.GetMsgID(VPXPI_NAMESPACE, VPXPI_EVT_ON_GAME_END))
+   , m_onKeyInputMsgId(m_msgApi.GetMsgID(VPXPI_NAMESPACE, VPXPI_EVT_ON_KEY_INPUT))
    , m_getLoggingAPIMsgId(m_msgApi.GetMsgID(LOGPI_NAMESPACE, LOGPI_MSG_GET_API))
    , m_getScriptingAPIMsgId(m_msgApi.GetMsgID(SCRIPTPI_NAMESPACE, SCRIPTPI_MSG_GET_API))
    , m_onDisplaySrcChgMsgId(m_msgApi.GetMsgID(CTLPI_NAMESPACE, CTLPI_DISPLAY_ON_SRC_CHG_MSG))
@@ -694,6 +734,10 @@ VPXPluginAPIImpl::VPXPluginAPIImpl(MsgPI::MsgPluginManager& pluginManager)
    m_api.UpdateTexture = UpdateTexture;
    m_api.GetTextureInfo = GetTextureInfo;
    m_api.DeleteTexture = DeleteTexture;
+
+   m_api.GetBackglassDeviceName = GetBackglassDeviceName;
+   m_api.GetPlayfieldDeviceName = GetPlayfieldDeviceName;
+   m_api.GetAudioDriver = GetAudioDriver;
 
    m_vpxPlugin = pluginManager.RegisterPlugin(
       "vpx"s, "VPX"s, "Visual Pinball X"s, ""s, ""s, "https://github.com/vpinball/vpinball"s, //
